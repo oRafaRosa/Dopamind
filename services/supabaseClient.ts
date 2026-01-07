@@ -1,12 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-// NOTE: For the purpose of this generated code, we will check if env vars exist.
-// If they don't, the app will run in "Demo Mode" with local state where possible.
+// Use import.meta.env for Vite compatibility. 
+// Fallback to empty strings to prevent crashing if not set.
+const supabaseUrl = (import.meta as any).env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = (import.meta as any).env.VITE_SUPABASE_ANON_KEY || '';
 
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create client only if keys are present, otherwise create a dummy client to avoid initial errors
+// In a real scenario, you'd want to handle this more gracefully, but for the UI demo it prevents the crash.
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseAnonKey || 'placeholder'
+);
 
 export const isSupabaseConfigured = () => {
   return supabaseUrl.length > 0 && supabaseAnonKey.length > 0;

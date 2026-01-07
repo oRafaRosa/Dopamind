@@ -87,3 +87,9 @@ export interface Friend {
   status: 'online' | 'offline' | 'busy';
   aura_level: number;
 }
+
+export interface DayLog {
+  date: string; // ISO format YYYY-MM-DD
+  status: 'perfect' | 'active' | 'inactive';
+  xp_earned: number;
+}

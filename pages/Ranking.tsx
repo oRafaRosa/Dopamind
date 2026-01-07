@@ -29,7 +29,7 @@ const RANKING_DATA: RankingUser[] = [
     rank: 3, 
     aura_level: 35, 
     total_xp: 154000, 
-    is_pro: false, 
+    is_pro: true, 
     avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop',
     badges: 12
   },
@@ -93,9 +93,9 @@ const Ranking = () => {
 
                     {/* Avatar with PRO Frame logic */}
                     <div className="relative group">
-                        <div className={`relative p-[2px] rounded-full ${
+                        <div className={`relative p-[2px] rounded-full transition-all duration-1000 ${
                             user.is_pro 
-                            ? 'bg-gradient-to-tr from-neon-purple via-blue-500 to-neon-purple animate-pulse-slow shadow-[0_0_15px_rgba(168,85,247,0.4)]' 
+                            ? 'bg-gradient-to-tr from-neon-purple via-blue-500 to-neon-purple animate-pulse-slow shadow-[0_0_15px_rgba(168,85,247,0.6)]' 
                             : 'bg-transparent'
                         }`}>
                              <img 

@@ -3,6 +3,7 @@ import { Settings, Shield, Crown, TrendingUp, Award, Lock, Flame, Zap, Skull, St
 import { useNavigate } from 'react-router-dom';
 import ProModal from '../components/ProModal';
 import StatsRadar from '../components/StatsRadar';
+import CalendarWidget from '../components/CalendarWidget';
 import BadgeDetailModal from '../components/BadgeDetailModal';
 import { Badge, Profile as ProfileType } from '../types';
 
@@ -158,6 +159,9 @@ const Profile = () => {
                     </div>
                  </div>
             </div>
+
+            {/* Calendar Consistency View */}
+            <CalendarWidget />
 
             {/* Badges Section */}
             <div>

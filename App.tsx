@@ -8,6 +8,7 @@ import CreateChallenge from './pages/CreateChallenge';
 import Ranking from './pages/Ranking';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
+import About from './pages/About';
 import XPHistory from './pages/XPHistory';
 import Shop from './pages/Shop';
 import Friends from './pages/Friends';
@@ -33,6 +34,7 @@ const App = () => {
               <Route path="friends" element={<Friends />} />
               <Route path="profile" element={<Profile />} />
               <Route path="profile/settings" element={<Settings />} />
+              <Route path="about" element={<About />} />
               <Route path="profile/history" element={<XPHistory />} />
               <Route path="*" element={<Navigate to="/app/home" replace />} />
             </Routes>

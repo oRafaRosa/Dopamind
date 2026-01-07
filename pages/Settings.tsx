@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Bell, Moon, Volume2, Shield, LogOut, Trash2 } from 'lucide-react';
+import { ArrowLeft, Bell, Moon, Volume2, Shield, LogOut, Trash2, Info, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
@@ -48,6 +48,25 @@ const Settings = () => {
                         <input type="checkbox" checked={sound} onChange={() => setSound(!sound)} className="sr-only peer" />
                         <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neon-purple"></div>
                     </label>
+                </div>
+            </div>
+        </div>
+
+        {/* Section: Info */}
+        <div>
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Sistema</h3>
+            <div className="bg-card border border-gray-800 rounded-2xl overflow-hidden">
+                <div 
+                    onClick={() => navigate('/app/about')}
+                    className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-800/30 transition-colors group"
+                >
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-gray-800 p-2 rounded-lg text-neon-blue group-hover:text-white transition-colors">
+                            <Info size={18} />
+                        </div>
+                        <span className="font-medium text-white text-sm">Sobre o App</span>
+                    </div>
+                    <ChevronRight size={18} className="text-gray-600" />
                 </div>
             </div>
         </div>
