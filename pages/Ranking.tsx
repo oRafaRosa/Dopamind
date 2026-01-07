@@ -1,6 +1,6 @@
 import React from 'react';
-import { RankingUser } from '../types';
-import { Trophy, Shield, Medal, Crown } from 'lucide-react';
+import { RankingUser, getAuraConfig } from '../types';
+import { Trophy, Shield, Medal, Crown, Activity } from 'lucide-react';
 
 const RANKING_DATA: RankingUser[] = [
   { 
@@ -11,7 +11,8 @@ const RANKING_DATA: RankingUser[] = [
     total_xp: 215000, 
     is_pro: true, 
     avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop',
-    badges: 24 
+    badges: 24,
+    streak: 45 // Dominant
   },
   { 
     id: 'u2', 
@@ -21,7 +22,8 @@ const RANKING_DATA: RankingUser[] = [
     total_xp: 180300, 
     is_pro: true, 
     avatar_url: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop',
-    badges: 18
+    badges: 18,
+    streak: 22 // Elevated
   },
   { 
     id: 'u3', 
@@ -31,7 +33,8 @@ const RANKING_DATA: RankingUser[] = [
     total_xp: 154000, 
     is_pro: true, 
     avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop',
-    badges: 12
+    badges: 12,
+    streak: 8 // Stable
   },
   { 
     id: 'u4', 
@@ -41,7 +44,8 @@ const RANKING_DATA: RankingUser[] = [
     total_xp: 89000, 
     is_pro: false, 
     avatar_url: 'https://picsum.photos/100/100',
-    badges: 5
+    badges: 5,
+    streak: 2 // Unstable
   },
   { 
     id: 'u5', 
@@ -51,7 +55,8 @@ const RANKING_DATA: RankingUser[] = [
     total_xp: 65000, 
     is_pro: false, 
     avatar_url: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=100&auto=format&fit=crop',
-    badges: 3
+    badges: 3,
+    streak: 0 // Unstable
   },
 ];
 
@@ -72,6 +77,8 @@ const Ranking = () => {
       <div className="space-y-3">
         {RANKING_DATA.map((user) => {
            const isCurrentUser = user.username === 'rafa_player';
+           const auraConfig = getAuraConfig(user.streak);
+
            return (
             <div 
                 key={user.id} 
@@ -91,7 +98,7 @@ const Ranking = () => {
                         {user.rank}
                     </div>
 
-                    {/* Avatar with PRO Frame logic */}
+                    {/* Avatar with Aura State Border */}
                     <div className="relative group">
                         <div className={`relative p-[2px] rounded-full transition-all duration-1000 ${
                             user.is_pro 
@@ -101,9 +108,7 @@ const Ranking = () => {
                              <img 
                                 src={user.avatar_url} 
                                 alt={user.username} 
-                                className={`w-12 h-12 rounded-full object-cover border-2 ${
-                                    user.is_pro ? 'border-transparent' : 'border-gray-700'
-                                }`} 
+                                className={`w-12 h-12 rounded-full object-cover border-2 ${auraConfig.border}`} 
                             />
                         </div>
 
@@ -123,8 +128,11 @@ const Ranking = () => {
                             </span>
                             {isCurrentUser && <span className="text-[10px] text-gray-500 font-mono">(Você)</span>}
                         </div>
-                        <div className="flex items-center space-x-3 mt-0.5">
-                             <span className="text-xs text-neon-purple font-bold">Lvl {user.aura_level}</span>
+                        <div className="flex items-center space-x-2 mt-0.5">
+                             <div className={`flex items-center text-[10px] font-bold uppercase ${auraConfig.color} px-1.5 rounded border ${auraConfig.border} bg-black`}>
+                                <Activity size={8} className="mr-1" />
+                                {auraConfig.state}
+                             </div>
                              
                              {/* Badge Count Indicator */}
                              {user.badges > 0 && (

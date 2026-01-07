@@ -12,6 +12,12 @@ import About from './pages/About';
 import XPHistory from './pages/XPHistory';
 import Shop from './pages/Shop';
 import Friends from './pages/Friends';
+import Nexus from './pages/Nexus';
+import FocusMode from './pages/FocusMode';
+import SkillTree from './pages/SkillTree';
+import SystemLogs from './pages/SystemLogs';
+import Oracle from './pages/Oracle';
+import PvpDuel from './pages/PvpDuel';
 
 const App = () => {
   return (
@@ -20,10 +26,17 @@ const App = () => {
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<Auth />} />
         
-        {/* Protected Routes - Flattened for Simple Router */}
+        {/* Protected Routes */}
         <Route path="/app/home" element={<Layout><Home /></Layout>} />
         
-        {/* Order matters: Specific routes first */}
+        {/* Nexus Tools */}
+        <Route path="/app/nexus" element={<Layout><Nexus /></Layout>} />
+        <Route path="/app/focus" element={<FocusMode />} /> {/* Fullscreen mode, no layout */}
+        <Route path="/app/skills" element={<SkillTree />} /> {/* Fullscreen mode */}
+        <Route path="/app/logs" element={<Layout><SystemLogs /></Layout>} />
+        <Route path="/app/oracle" element={<Layout><Oracle /></Layout>} />
+        <Route path="/app/pvp" element={<Layout><PvpDuel /></Layout>} />
+        
         <Route path="/app/challenges/create" element={<Layout><CreateChallenge /></Layout>} />
         <Route path="/app/challenges/:id" element={<Layout><ChallengeDetail /></Layout>} />
         <Route path="/app/challenges" element={<Layout><Challenges /></Layout>} />

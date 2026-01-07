@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Profile, Task } from '../types';
+import { Profile, Task, getAuraConfig } from '../types';
 import XPModal from '../components/XPModal';
 import EvidenceModal from '../components/EvidenceModal';
 import PerfectDayModal from '../components/PerfectDayModal';
-import { Flame, CheckCircle2, Circle, Dumbbell, BookOpen, Brain, Briefcase, Plus, Camera, Coins } from 'lucide-react';
+import BossRaidWidget from '../components/BossRaidWidget';
+import { Flame, CheckCircle2, Circle, Dumbbell, BookOpen, Brain, Briefcase, Plus, Camera, Coins, Activity } from 'lucide-react';
 
 // Mock Data
 const INITIAL_PROFILE: Profile = {
@@ -53,6 +54,9 @@ const Home = () => {
 
   const [showPerfectDay, setShowPerfectDay] = useState(false);
   const [perfectDayXp, setPerfectDayXp] = useState(0);
+
+  // Aura Logic
+  const auraConfig = getAuraConfig(profile.streak);
 
   // Calculate Levels
   const calculateAura = (xp: number) => Math.floor(Math.sqrt(xp / 120)) + 1;
@@ -162,21 +166,22 @@ const Home = () => {
       {/* Header Stats */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-            <div className="relative">
-                <img src={profile.avatar_url} alt="Avatar" className="w-14 h-14 rounded-full border-2 border-neon-purple p-0.5" />
+            <div className={`relative p-0.5 rounded-full border-2 ${auraConfig.border}`}>
+                <img src={profile.avatar_url} alt="Avatar" className="w-14 h-14 rounded-full" />
                 <div className="absolute -bottom-1 -right-1 bg-background text-[10px] font-bold px-1.5 py-0.5 rounded border border-gray-700">
                     LVL {profile.aura_level}
                 </div>
             </div>
             <div>
                 <h1 className="text-xl font-bold text-white">{profile.display_name}</h1>
-                <div className="flex items-center space-x-1 text-neon-purple">
-                    <span className="text-sm font-display font-bold">AURA {profile.aura_level}</span>
+                <div className={`flex items-center space-x-2 text-xs font-bold uppercase tracking-wider ${auraConfig.color}`}>
+                   <Activity size={12} />
+                   <span>{auraConfig.state}</span>
                 </div>
             </div>
         </div>
         <div className="flex flex-col items-end space-y-1">
-            <div className="flex items-center space-x-1 text-orange-500 bg-orange-500/10 px-3 py-1 rounded-full border border-orange-500/20">
+            <div className={`flex items-center space-x-1 px-3 py-1 rounded-full border ${auraConfig.bg} ${auraConfig.border} ${auraConfig.color}`}>
                 <Flame size={16} fill="currentColor" />
                 <span className="font-bold font-display">{profile.streak} DIAS</span>
             </div>
@@ -195,11 +200,17 @@ const Home = () => {
         </div>
         <div className="h-3 w-full bg-gray-800 rounded-full overflow-hidden relative">
             <div 
-                className="h-full bg-gradient-to-r from-neon-purple to-neon-blue transition-all duration-1000 ease-out"
+                className={`h-full bg-gradient-to-r from-gray-600 to-white transition-all duration-1000 ease-out`}
                 style={{ width: `${progressPercent}%` }}
-            ></div>
+            >
+                {/* Overlay color based on Aura State */}
+                 <div className={`absolute inset-0 opacity-70 ${auraConfig.bg.replace('/10', '')}`}></div>
+            </div>
         </div>
       </div>
+      
+      {/* Boss Raid Widget */}
+      <BossRaidWidget />
 
       {/* Daily Progress Widget */}
       <div className={`bg-card border border-gray-800 rounded-2xl p-6 relative overflow-hidden transition-all duration-500 ${completionRate === 100 ? 'border-neon-green/50 shadow-lg shadow-neon-green/10' : ''}`}>

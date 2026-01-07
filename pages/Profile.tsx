@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Settings, Shield, Crown, TrendingUp, Award, Lock, Flame, Zap, Skull, Star, Medal } from 'lucide-react';
+import { Settings, Shield, Crown, TrendingUp, Award, Lock, Flame, Zap, Skull, Star, Medal, Activity } from 'lucide-react';
 import { useNavigate } from '../components/Layout';
 import ProModal from '../components/ProModal';
 import StatsRadar from '../components/StatsRadar';
 import CalendarWidget from '../components/CalendarWidget';
 import BadgeDetailModal from '../components/BadgeDetailModal';
-import { Badge, Profile as ProfileType } from '../types';
+import { Badge, Profile as ProfileType, getAuraConfig } from '../types';
 
 const MOCK_BADGES: Badge[] = [
     { 
@@ -74,6 +74,9 @@ const Profile = () => {
     const [isProModalOpen, setIsProModalOpen] = useState(false);
     const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
     const profile = MOCK_PROFILE;
+    
+    // Aura State
+    const auraConfig = getAuraConfig(profile.streak);
 
     const getBadgeIcon = (name: string) => {
         switch(name) {
@@ -90,12 +93,12 @@ const Profile = () => {
     return (
         <div className="space-y-6 animate-slide-up pb-20">
             {/* Header Card */}
-            <div className="bg-card border border-gray-800 rounded-2xl p-6 text-center relative overflow-hidden">
+            <div className={`bg-card border rounded-2xl p-6 text-center relative overflow-hidden ${auraConfig.border} shadow-lg ${auraConfig.shadow}`}>
                  <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-gray-800/50 to-transparent"></div>
                  
                  <div className="relative z-10">
                     <div className="relative inline-block">
-                        <img src={profile.avatar_url} className="w-24 h-24 rounded-full mx-auto border-4 border-card shadow-xl" alt="Profile" />
+                        <img src={profile.avatar_url} className={`w-24 h-24 rounded-full mx-auto border-4 border-card shadow-xl`} alt="Profile" />
                         {/* Status Badge */}
                         <div className="absolute bottom-0 right-0 bg-gray-800 text-[10px] font-bold px-2 py-0.5 rounded border border-gray-600 text-gray-400">
                             FREE
@@ -103,7 +106,10 @@ const Profile = () => {
                     </div>
                     
                     <h2 className="text-2xl font-bold text-white mt-4">{profile.display_name}</h2>
-                    <p className="text-gray-500 text-sm">@{profile.username}</p>
+                    <div className={`flex items-center justify-center space-x-2 mt-1 ${auraConfig.color}`}>
+                         <Activity size={14} />
+                         <span className="text-sm font-bold uppercase tracking-widest">{auraConfig.state}</span>
+                    </div>
                     
                     <div className="flex justify-center mt-6 space-x-8">
                         <div className="text-center">

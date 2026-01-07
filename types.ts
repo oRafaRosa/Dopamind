@@ -1,3 +1,4 @@
+
 export interface UserStats {
   str: number; // Strength (Body)
   int: number; // Intellect (Mind)
@@ -16,7 +17,7 @@ export interface Profile {
   aura_level: number;
   streak: number;
   credits: number;
-  stats: UserStats; // New RPG Stats
+  stats: UserStats;
 }
 
 export interface Task {
@@ -49,7 +50,8 @@ export interface RankingUser {
   total_xp: number;
   is_pro: boolean;
   rank: number;
-  badges: number; // Added to show achievement count in ranking
+  badges: number;
+  streak: number; // Added for state calculation
 }
 
 export interface LedgerEntry {
@@ -66,7 +68,7 @@ export interface Badge {
   name: string;
   description: string;
   icon_name: string;
-  unlocked_at?: string; // null if locked
+  unlocked_at?: string;
 }
 
 export interface ShopItem {
@@ -89,7 +91,86 @@ export interface Friend {
 }
 
 export interface DayLog {
-  date: string; // ISO format YYYY-MM-DD
+  date: string;
   status: 'perfect' | 'active' | 'inactive';
   xp_earned: number;
 }
+
+// --- NEW TYPES ---
+
+export interface SkillNode {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  req_stat: 'str' | 'int' | 'foc' | 'spi' | 'cha';
+  req_value: number;
+  unlocked: boolean;
+  icon: string;
+  position: { x: number; y: number }; // Percentage 0-100
+  parentId?: string;
+}
+
+export interface BossRaid {
+  name: string;
+  description: string;
+  total_hp: number;
+  current_hp: number;
+  time_left: string;
+  participants: number;
+  reward_credits: number;
+}
+
+export interface SystemLogEntry {
+  id: string;
+  date: string;
+  content: string;
+  ai_feedback: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'oracle';
+  text: string;
+}
+
+// --- AURA LOGIC ---
+
+export type AuraState = 'Unstable' | 'Stable' | 'Elevated' | 'Dominant';
+
+export const getAuraConfig = (streak: number) => {
+  if (streak < 3) {
+    return { 
+      state: 'Unstable' as AuraState, 
+      color: 'text-red-500', 
+      border: 'border-red-500', 
+      bg: 'bg-red-500/10',
+      shadow: 'shadow-red-500/20' 
+    };
+  }
+  if (streak < 14) {
+    return { 
+      state: 'Stable' as AuraState, 
+      color: 'text-blue-400', 
+      border: 'border-blue-400', 
+      bg: 'bg-blue-400/10',
+      shadow: 'shadow-blue-400/20'
+    };
+  }
+  if (streak < 30) {
+    return { 
+      state: 'Elevated' as AuraState, 
+      color: 'text-neon-purple', 
+      border: 'border-neon-purple', 
+      bg: 'bg-neon-purple/10',
+      shadow: 'shadow-neon-purple/20'
+    };
+  }
+  return { 
+    state: 'Dominant' as AuraState, 
+    color: 'text-yellow-400', 
+    border: 'border-yellow-400', 
+    bg: 'bg-yellow-400/10',
+    shadow: 'shadow-yellow-400/50'
+  };
+};
