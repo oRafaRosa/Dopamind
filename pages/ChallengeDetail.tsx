@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '../components/Layout';
 import { ArrowLeft, Clock, Users, Shield, Zap, CheckCircle2 } from 'lucide-react';
 import { Challenge } from '../types';
 

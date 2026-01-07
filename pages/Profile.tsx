@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Settings, Shield, Crown, TrendingUp, Award, Lock, Flame, Zap, Skull, Star, Medal } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../components/Layout';
 import ProModal from '../components/ProModal';
 import StatsRadar from '../components/StatsRadar';
 import CalendarWidget from '../components/CalendarWidget';

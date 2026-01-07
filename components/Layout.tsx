@@ -1,6 +1,120 @@
-import React from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Home, Trophy, Swords, User, Zap, ShoppingBag, Users } from 'lucide-react';
-import { useLocation, Link } from 'react-router-dom';
+
+// --- CUSTOM ROUTER IMPLEMENTATION ---
+// Since react-router-dom is not available in this environment, we implement a lightweight HashRouter.
+
+const RouterContext = createContext<{ route: string; navigate: (path: string | number, options?: { replace?: boolean }) => void } | null>(null);
+
+export const HashRouter = ({ children }: { children: React.ReactNode }) => {
+  const [route, setRoute] = useState(window.location.hash.slice(1) || '/login');
+
+  useEffect(() => {
+    const onHashChange = () => {
+      setRoute(window.location.hash.slice(1) || '/login');
+    };
+    window.addEventListener('hashchange', onHashChange);
+    // Ensure hash exists
+    if (!window.location.hash) window.location.hash = '#/login';
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const navigate = (to: string | number, options?: { replace?: boolean }) => {
+    if (typeof to === 'number') {
+        window.history.go(to);
+        return;
+    }
+    if (options?.replace) {
+        window.location.replace('#' + to);
+    } else {
+        window.location.hash = to;
+    }
+  };
+
+  return (
+    <RouterContext.Provider value={{ route, navigate }}>
+      {children}
+    </RouterContext.Provider>
+  );
+};
+
+export const useNavigate = () => {
+    const context = useContext(RouterContext);
+    return context ? context.navigate : () => {};
+};
+
+export const useLocation = () => {
+    const context = useContext(RouterContext);
+    return { pathname: context?.route || '/' };
+};
+
+export const useParams = () => {
+    const { pathname } = useLocation();
+    const parts = pathname.split('/');
+    // Specific handler for challenges/:id
+    // Path structure: /app/challenges/123
+    if (pathname.includes('/challenges/') && parts.length >= 4) {
+        return { id: parts[3] };
+    }
+    return {};
+};
+
+export const Link = ({ to, children, className }: { to: string; children: React.ReactNode; className?: string }) => (
+    <a 
+      href={`#${to}`} 
+      className={className}
+      onClick={(e) => {
+        // Prevent default only if we wanted to handle history pushstate, but for hash router default anchor behavior is fine
+        // provided we write the href as #path.
+      }}
+    >
+      {children}
+    </a>
+);
+
+export const Navigate = ({ to, replace }: { to: string; replace?: boolean }) => {
+    const navigate = useNavigate();
+    useEffect(() => { navigate(to, { replace }); }, [to, replace, navigate]);
+    return null;
+};
+
+export const Routes = ({ children }: { children: React.ReactNode }) => {
+    const { pathname } = useLocation();
+    let element: React.ReactNode = null;
+    
+    React.Children.forEach(children, (child) => {
+        if (element) return; // Match first
+        if (React.isValidElement(child)) {
+            const path = child.props.path;
+            
+            // Catch-all
+            if (path === '*') {
+                element = child.props.element;
+                return;
+            }
+
+            // Exact match
+            if (path === pathname) {
+                element = child.props.element;
+                return;
+            }
+
+            // Param match (e.g., /app/challenges/:id)
+            if (path.includes(':')) {
+                const regexStr = '^' + path.replace(/:[^\s/]+/g, '([^/]+)') + '$';
+                const regex = new RegExp(regexStr);
+                if (regex.test(pathname)) {
+                    element = child.props.element;
+                }
+            }
+        }
+    });
+    return <>{element}</>;
+};
+
+export const Route = ({ path, element }: { path: string; element: React.ReactNode }) => element;
+
+// --- END CUSTOM ROUTER ---
 
 interface LayoutProps {
   children: React.ReactNode;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Challenge } from '../types';
 import { Lock, Users, Clock, Check, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../components/Layout';
 
 const CHALLENGES: Challenge[] = [
   {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../components/Layout';
 import { ArrowLeft, Brain, Zap, Gamepad2, Code, Cpu, Activity, Rocket } from 'lucide-react';
 
 const About = () => {

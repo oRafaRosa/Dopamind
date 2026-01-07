@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../components/Layout';
 import { ArrowLeft, Swords, Info } from 'lucide-react';
 
 const CreateChallenge = () => {

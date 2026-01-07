@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowLeft, TrendingUp, Calendar } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '../components/Layout';
 import { LedgerEntry } from '../types';
 
 const MOCK_LEDGER: LedgerEntry[] = [
