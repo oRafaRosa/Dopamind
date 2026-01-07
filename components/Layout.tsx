@@ -85,26 +85,26 @@ export const Routes = ({ children }: { children: React.ReactNode }) => {
     React.Children.forEach(children, (child) => {
         if (element) return; // Match first
         if (React.isValidElement(child)) {
-            const path = child.props.path;
+            const { path, element: routeElement } = child.props as { path: string; element: React.ReactNode };
             
             // Catch-all
             if (path === '*') {
-                element = child.props.element;
+                element = routeElement;
                 return;
             }
 
             // Exact match
             if (path === pathname) {
-                element = child.props.element;
+                element = routeElement;
                 return;
             }
 
             // Param match (e.g., /app/challenges/:id)
-            if (path.includes(':')) {
+            if (path && path.includes(':')) {
                 const regexStr = '^' + path.replace(/:[^\s/]+/g, '([^/]+)') + '$';
                 const regex = new RegExp(regexStr);
                 if (regex.test(pathname)) {
-                    element = child.props.element;
+                    element = routeElement;
                 }
             }
         }
