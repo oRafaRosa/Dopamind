@@ -1,0 +1,7 @@
+{
+  "name": "DOPAMIND",
+  "description": "Um RPG da vida real para gamificar sua rotina. Complete tarefas, ganhe XP e farme Aura.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
