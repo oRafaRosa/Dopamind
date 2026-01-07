@@ -1,5 +1,6 @@
 import React from 'react';
-import Layout, { HashRouter, Routes, Route, Navigate } from './components/Layout';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
 import Auth from './pages/Auth';
 import Home from './pages/Home';
 import Challenges from './pages/Challenges';

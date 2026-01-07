@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/Dopamind/', // CRUCIAL: Must match your GitHub repository name
+  base: './', // CRUCIAL: Makes the build relative so it works on any repo name/subfolder
   build: {
     outDir: 'dist',
     sourcemap: true
