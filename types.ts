@@ -49,6 +49,7 @@ export interface RankingUser {
   total_xp: number;
   is_pro: boolean;
   rank: number;
+  badges: number; // Added to show achievement count in ranking
 }
 
 export interface LedgerEntry {
