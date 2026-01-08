@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Vital for GitHub Pages deployment
+  base: '/Dopamind/', // Configuração crucial para o GitHub Pages carregar CSS e JS corretamente
   build: {
     outDir: 'dist',
     sourcemap: true,
