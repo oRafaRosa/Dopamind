@@ -1,12 +1,9 @@
 import React from 'react';
 import { Home, Trophy, Swords, User, Zap, Users, LayoutGrid } from 'lucide-react';
-import { Link as RDLink, useLocation as useRDLocation, useNavigate as useRDNavigate, useParams as useRDParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-// Re-export hooks to maintain compatibility with existing pages that import from here
-export const useNavigate = useRDNavigate;
-export const useLocation = useRDLocation;
-export const useParams = useRDParams;
-export const Link = RDLink;
+// Direct re-exports to ensure modules are loaded correctly
+export { Link, useLocation, useNavigate, useParams };
 
 interface LayoutProps {
   children: React.ReactNode;

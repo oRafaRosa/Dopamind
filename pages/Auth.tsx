@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from '../components/Layout';
-import { Zap, ArrowRight, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Zap, ArrowRight } from 'lucide-react';
 
 const Auth = () => {
   const navigate = useNavigate();
