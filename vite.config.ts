@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Base path deve corresponder ao nome do repositório para o GitHub Pages
-  base: '/Dopamind/', 
+  // Base path alterado para raiz para compatibilidade local
+  base: '/', 
   build: {
     outDir: 'dist',
     sourcemap: true,

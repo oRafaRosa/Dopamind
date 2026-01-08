@@ -1,9 +1,12 @@
 import React, { Component, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.css';
 
-console.log("Dopamind System Initializing...");
+console.log(" [index.tsx] 1. Arquivo carregado. Tentando importar CSS...");
+import './index.css';
+console.log(" [index.tsx] 2. Linha de import do CSS executada.");
+
+console.log(" [index.tsx] 3. Dopamind System Initializing...");
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -53,13 +56,18 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 }
 
 const rootElement = document.getElementById('root');
+console.log(" [index.tsx] 4. Root element check:", rootElement);
+
 if (!rootElement) {
   console.error("CRITICAL: Root element not found!");
   throw new Error("Could not find root element to mount to");
 }
 
 try {
+  console.log(" [index.tsx] 5. Creating React Root...");
   const root = ReactDOM.createRoot(rootElement);
+  
+  console.log(" [index.tsx] 6. Rendering App...");
   root.render(
     <React.StrictMode>
       <ErrorBoundary>
@@ -67,7 +75,7 @@ try {
       </ErrorBoundary>
     </React.StrictMode>
   );
-  console.log("Dopamind System Online.");
+  console.log(" [index.tsx] 7. Render called. Dopamind System Online.");
 } catch (e) {
   console.error("Failed to mount React app:", e);
 }

@@ -20,7 +20,10 @@ import SystemLogs from './pages/SystemLogs';
 import Oracle from './pages/Oracle';
 import PvpDuel from './pages/PvpDuel';
 
+console.log(" [App.tsx] Module loaded.");
+
 const App = () => {
+  console.log(" [App.tsx] Component rendering...");
   return (
     <HashRouter>
       <Routes>
