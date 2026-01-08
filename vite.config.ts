@@ -4,8 +4,7 @@ import react from '@vitejs/plugin-react';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Base path alterado para raiz para compatibilidade local
-  base: '/', 
+  base: './',
   build: {
     outDir: 'dist',
     sourcemap: true,

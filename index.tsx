@@ -1,81 +1,66 @@
-import React, { Component, ReactNode } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-
-console.log(" [index.tsx] 1. Arquivo carregado. Tentando importar CSS...");
 import './index.css';
-console.log(" [index.tsx] 2. Linha de import do CSS executada.");
 
-console.log(" [index.tsx] 3. Dopamind System Initializing...");
+console.log("Dopamind: Booting from index.tsx...");
 
-interface ErrorBoundaryProps {
-  children: ReactNode;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-// Global Error Boundary to catch crashes in production
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+// Error Boundary Simples para envolver a aplicação
+class SafeZone extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
+  constructor(props: any) {
     super(props);
     this.state = { hasError: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(error: any) {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Dopamind React Crash:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: '20px', backgroundColor: '#07070d', color: '#ff5555', height: '100vh', fontFamily: 'monospace', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#a855f7' }}>SYSTEM FAILURE</h1>
-          <p style={{ color: '#94a3b8' }}>Please refresh the neural link.</p>
-          <pre style={{ overflow: 'auto', maxWidth: '80%', background: '#12121a', padding: '1rem', borderRadius: '0.5rem', marginTop: '1rem', border: '1px solid #334155' }}>
-            {this.state.error?.message}
-          </pre>
+        <div className="flex h-screen w-screen flex-col items-center justify-center bg-background text-red-500 p-8 text-center font-mono">
+          <h1 className="text-2xl font-bold mb-4">CRITICAL ERROR</h1>
+          <p className="mb-4 text-gray-400">O núcleo do sistema falhou.</p>
+          <div className="bg-gray-900 p-4 rounded border border-gray-800 text-xs overflow-auto max-w-full">
+            {this.state.error?.toString()}
+          </div>
           <button 
             onClick={() => window.location.reload()}
-            style={{ marginTop: '20px', padding: '12px 24px', background: '#a855f7', color: 'white', border: 'none', fontWeight: 'bold', borderRadius: '8px', cursor: 'pointer' }}
+            className="mt-6 px-6 py-2 bg-neon-purple text-white rounded hover:bg-purple-600 transition-colors"
           >
-            REBOOT SYSTEM
+            REINICIAR
           </button>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
 
-const rootElement = document.getElementById('root');
-console.log(" [index.tsx] 4. Root element check:", rootElement);
+const container = document.getElementById('root');
 
-if (!rootElement) {
-  console.error("CRITICAL: Root element not found!");
-  throw new Error("Could not find root element to mount to");
-}
-
-try {
-  console.log(" [index.tsx] 5. Creating React Root...");
-  const root = ReactDOM.createRoot(rootElement);
-  
-  console.log(" [index.tsx] 6. Rendering App...");
-  root.render(
-    <React.StrictMode>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </React.StrictMode>
-  );
-  console.log(" [index.tsx] 7. Render called. Dopamind System Online.");
-} catch (e) {
-  console.error("Failed to mount React app:", e);
+if (container) {
+  try {
+    const root = ReactDOM.createRoot(container);
+    root.render(
+      <React.StrictMode>
+        <SafeZone>
+          <App />
+        </SafeZone>
+      </React.StrictMode>
+    );
+  } catch (err) {
+    console.error("Failed to create root:", err);
+    container.innerHTML = `<div style="color:red; padding:20px; text-align:center;">
+      <h3>FALHA DE INICIALIZAÇÃO</h3>
+      <p>${err}</p>
+    </div>`;
+  }
+} else {
+  console.error("FATAL: Elemento #root não encontrado.");
 }

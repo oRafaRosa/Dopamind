@@ -1,0 +1,1 @@
+// Arquivo descontinuado. Usar index.tsx.
