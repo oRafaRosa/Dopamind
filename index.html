@@ -54,7 +54,6 @@
       }
     </script>
 
-    <!-- Global CSS Overrides -->
     <style>
       body {
         background-color: #07070d;
@@ -77,13 +76,12 @@
         border-radius: 3px;
       }
       
-      /* Hide scrollbar for badge list but keep functionality */
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-      }
       .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
       }
 
       /* Fallback Loading Screen */
@@ -106,59 +104,25 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.5; }
       }
-      
-      /* Error Container Style */
-      #global-error {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #07070d;
-        color: #ef4444;
-        z-index: 9999;
-        padding: 20px;
-        font-family: monospace;
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-      }
     </style>
-    <script>
-      window.addEventListener('error', function(event) {
-        var errorBox = document.getElementById('global-error');
-        var errorMsg = document.getElementById('error-message');
-        if (errorBox && errorMsg) {
-           errorBox.style.display = 'flex';
-           errorMsg.innerText = "ERRO DETECTADO: " + event.message + "\n\n(Verifique o console para mais detalhes)";
-        }
-      });
-    </script>
-    <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@^19.2.3",
-        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-        "react/": "https://esm.sh/react@^19.2.3/",
-        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.0",
-        "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
-        "vite": "https://esm.sh/vite@^7.3.1",
-        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-        "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0"
-      }
-    }
-    </script>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1"
+  }
+}
+</script>
 </head>
   <body>
     <div id="root"></div>
-    <div id="global-error">
-        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">SYSTEM FAILURE</h2>
-        <pre id="error-message" style="background: #1e1e26; padding: 1rem; border-radius: 8px; max-width: 90%; overflow: auto;"></pre>
-        <button onclick="window.location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #333; color: white; border: none; border-radius: 5px; cursor: pointer;">TENTAR NOVAMENTE</button>
-    </div>
-    <!-- Alterado para /main.tsx -->
-    <script type="module" src="/main.tsx"></script>
+    <!-- Usando caminho relativo direto para o index.tsx -->
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>
