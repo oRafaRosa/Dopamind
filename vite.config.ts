@@ -7,6 +7,7 @@ export default defineConfig({
   base: './', // CRUCIAL: Makes the build relative so it works on any repo name/subfolder
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    assetsDir: 'assets',
   }
 });
