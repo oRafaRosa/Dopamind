@@ -54,6 +54,7 @@
         background-color: #07070d;
         color: #e2e8f0;
         -webkit-tap-highlight-color: transparent;
+        overflow-x: hidden;
       }
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
@@ -80,6 +81,7 @@
         font-size: 1.2rem;
         letter-spacing: 0.2em;
         animation: pulse 2s infinite;
+        background: radial-gradient(circle at center, #12121a 0%, #07070d 100%);
       }
       @keyframes pulse {
         0%, 100% { opacity: 1; }
@@ -89,6 +91,9 @@
 <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
     "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
     "vite": "https://esm.sh/vite@^7.3.1",
@@ -100,6 +105,6 @@
 </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
