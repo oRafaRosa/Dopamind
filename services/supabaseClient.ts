@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // Safe access to environment variables that works in both Vite dev and prod builds
 // @ts-ignore
-const env = import.meta.env || {};
+const env: any = import.meta.env || {};
 
 const supabaseUrl = env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY || '';
