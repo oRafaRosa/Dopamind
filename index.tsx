@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import './index.css'; // Importante: Importar o CSS para o Vite processar o Tailwind
 
 const container = document.getElementById('root');
 

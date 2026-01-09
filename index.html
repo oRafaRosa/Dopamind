@@ -8,44 +8,8 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
-    <!-- TAILWIND CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              display: ['Rajdhani', 'sans-serif'],
-            },
-            colors: {
-              background: '#07070d',
-              card: '#12121a',
-              neon: {
-                purple: '#a855f7',
-                green: '#10b981',
-                blue: '#3b82f6',
-              }
-            },
-            animation: {
-              'level-up': 'levelUp 0.8s ease-out forwards',
-              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'slide-up': 'slideUp 0.3s ease-out forwards',
-              'fade-in': 'fadeIn 0.2s ease-out forwards',
-            },
-            keyframes: {
-              levelUp: {
-                '0%': { transform: 'scale(0.8)', opacity: '0' },
-                '50%': { transform: 'scale(1.1)', opacity: '1' },
-                '100%': { transform: 'scale(1)', opacity: '1' },
-              }
-            }
-          }
-        }
-      }
-    </script>
-
+    <!-- O estilo será injetado pelo Vite através do import no index.tsx -->
+    
     <style>
       body {
         background-color: #07070d;
@@ -53,7 +17,9 @@
         margin: 0;
         padding: 0;
         font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
       }
+      /* Loading State CSS Critical Path */
       #root:empty::before {
         content: 'BOOTING SYSTEM...';
         display: flex;
@@ -66,6 +32,8 @@
         font-weight: 700;
         letter-spacing: 0.3em;
         animation: pulse 1.5s infinite;
+        background: radial-gradient(circle at center, #12121a 0%, #07070d 100%);
+        font-size: 1.2rem;
       }
       @keyframes pulse {
         0%, 100% { opacity: 1; }
@@ -75,13 +43,13 @@
   <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
     "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
     "vite": "https://esm.sh/vite@^7.3.1",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
@@ -89,7 +57,6 @@
 </head>
   <body>
     <div id="root"></div>
-    <!-- Ponto de entrada com caminho relativo para funcionar em subpastas (GH Pages) -->
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>
