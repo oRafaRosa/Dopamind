@@ -1,20 +1,60 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Dopamind RPG
 
-# Run and deploy your AI Studio app
+Um RPG gamificado para desenvolvimento pessoal e produtividade.
 
-This contains everything you need to run your app locally.
+## Configuração do Supabase
 
-View your app in AI Studio: https://ai.studio/apps/drive/1EmIHBBOISdOhRm-lZg7npy7TC99-ey3L
+1. **Crie um projeto no Supabase:**
+   - Acesse [supabase.com](https://supabase.com) e crie uma conta
+   - Crie um novo projeto
 
-## Run Locally
+2. **Configure as variáveis de ambiente:**
+   - Copie o arquivo `.env` e renomeie para `.env.local`
+   - Preencha com suas chaves do Supabase:
+     ```
+     VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+     VITE_SUPABASE_ANON_KEY=sua-chave-anonima
+     ```
 
-**Prerequisites:**  Node.js
+3. **Execute o schema SQL:**
+   - No painel do Supabase, vá para SQL Editor
+   - Execute o conteúdo do arquivo `supabase_schema.sql`
 
+4. **Configure Authentication:**
+   - No painel do Supabase, vá para Authentication > Settings
+   - Configure os provedores de auth desejados (Email, Google, etc.)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Executar Localmente
+
+**Pré-requisitos:** Node.js
+
+1. Instale as dependências:
+   ```bash
+   npm install
+   ```
+
+2. Configure as variáveis de ambiente (veja acima)
+
+3. Execute o app:
+   ```bash
+   npm run dev
+   ```
+
+## Funcionalidades
+
+- Sistema de tarefas gamificado
+- Sistema de XP e níveis
+- Estatísticas de personagem (STR, INT, FOC, SPI, CHA)
+- Desafios e conquistas
+- Histórico de progresso
+- Sistema de créditos
+
+## Estrutura do Banco
+
+- `profiles`: Perfis dos usuários
+- `tasks`: Tarefas diárias
+- `challenges`: Desafios disponíveis
+- `challenge_participants`: Participação em desafios
+- `xp_history`: Histórico de XP
+- `badges`: Conquistas desbloqueadas
+- `day_logs`: Logs diários de atividade

@@ -1,30 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Skull, Users, Clock, Swords } from 'lucide-react';
-import { BossRaid } from '../types';
-
-const MOCK_BOSS: BossRaid = {
-    name: "A ENTIDADE DA PROCRASTINAÇÃO",
-    description: "Um parasita psíquico alimentado por dopamina barata e scrolling infinito.",
-    total_hp: 1000000,
-    current_hp: 458920,
-    time_left: "08:12:45",
-    participants: 4512,
-    reward_credits: 500
-};
 
 const BossRaidWidget = () => {
-    const [boss, setBoss] = useState(MOCK_BOSS);
-
-    // Simulate damage over time
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setBoss(prev => ({
-                ...prev,
-                current_hp: Math.max(0, prev.current_hp - Math.floor(Math.random() * 500))
-            }));
-        }, 3000);
-        return () => clearInterval(interval);
-    }, []);
+    const boss = {
+        name: "A ENTIDADE DA PROCRASTINAÇÃO",
+        description: "Um parasita psíquico alimentado por dopamina barata e scrolling infinito.",
+        total_hp: 1000000,
+        current_hp: 458920,
+        time_left: "08:12:45",
+        participants: 4512,
+        reward_credits: 500
+    };
 
     const percentage = (boss.current_hp / boss.total_hp) * 100;
 

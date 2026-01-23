@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Settings, Shield, Crown, TrendingUp, Award, Lock, Flame, Zap, Skull, Star, Medal, Activity } from 'lucide-react';
 import { useNavigate } from '../components/Layout';
 import ProModal from '../components/ProModal';
@@ -6,75 +6,70 @@ import StatsRadar from '../components/StatsRadar';
 import CalendarWidget from '../components/CalendarWidget';
 import BadgeDetailModal from '../components/BadgeDetailModal';
 import { Badge, Profile as ProfileType, getAuraConfig } from '../types';
-
-const MOCK_BADGES: Badge[] = [
-    { 
-        id: '1', 
-        slug: 'streak-7', 
-        name: 'Week Warrior', 
-        description: 'Mantenha um streak (sequência) de 7 dias consecutivos.', 
-        icon_name: 'Flame', 
-        unlocked_at: '2023-10-10' 
-    },
-    { 
-        id: '2', 
-        slug: 'xp-10k', 
-        name: 'High Born', 
-        description: 'Acumule um total de 10.000 XP na sua jornada.', 
-        icon_name: 'Zap', 
-        unlocked_at: '2023-09-15' 
-    },
-    { 
-        id: '3', 
-        slug: 'perfect-10', 
-        name: 'Perfect Ten', 
-        description: 'Complete 10 dias perfeitos (todas as tarefas) em um único mês.', 
-        icon_name: 'Medal', 
-        unlocked_at: undefined 
-    },
-    { 
-        id: '4', 
-        slug: 'hard-mode', 
-        name: 'Survivor', 
-        description: 'Complete 1 Challenge em dificuldade Hard Mode sem falhar nenhum dia.', 
-        icon_name: 'Skull', 
-        unlocked_at: undefined 
-    }, 
-    { 
-        id: '5', 
-        slug: 'early', 
-        name: 'Founder', 
-        description: 'Usuário Beta: Esteve aqui antes do hype.', 
-        icon_name: 'Star', 
-        unlocked_at: '2023-01-01' 
-    },
-];
-
-const MOCK_PROFILE: ProfileType = {
-  id: '1',
-  username: 'rafa_player',
-  display_name: 'Rafa Player',
-  avatar_url: 'https://picsum.photos/100/100',
-  is_pro: false,
-  total_xp: 3420,
-  aura_level: 27,
-  streak: 6,
-  credits: 450,
-  stats: {
-    str: 65,
-    int: 80,
-    foc: 45,
-    spi: 30,
-    cha: 55
-  }
-};
+import { supabase } from '../services/supabaseClient';
+import { getProfile, getBadges } from '../services/database';
 
 const Profile = () => {
     const navigate = useNavigate();
     const [isProModalOpen, setIsProModalOpen] = useState(false);
     const [selectedBadge, setSelectedBadge] = useState<Badge | null>(null);
-    const profile = MOCK_PROFILE;
-    
+    const [profile, setProfile] = useState<ProfileType | null>(null);
+    const [badges, setBadges] = useState<Badge[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<any>(null);
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            if (user) {
+                await loadProfileAndBadges(user.id);
+            }
+            setLoading(false);
+        };
+
+        getUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                await loadProfileAndBadges(session.user.id);
+            } else {
+                setProfile(null);
+                setBadges([]);
+            }
+            setLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const loadProfileAndBadges = async (userId: string) => {
+        const profileData = await getProfile(userId);
+        const badgesData = await getBadges(userId);
+
+        if (profileData) {
+            setProfile(profileData);
+        }
+        setBadges(badgesData);
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-white">Carregando...</div>
+            </div>
+        );
+    }
+
+    if (!user || !profile) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-white">Por favor, faça login para ver seu perfil.</div>
+            </div>
+        );
+    }
+
     // Aura State
     const auraConfig = getAuraConfig(profile.streak);
 
@@ -173,7 +168,7 @@ const Profile = () => {
             <div>
                 <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Conquistas</h3>
                 <div className="flex space-x-3 overflow-x-auto pb-4 scrollbar-hide px-1">
-                    {MOCK_BADGES.map((badge) => {
+                    {badges.map((badge) => {
                         const Icon = getBadgeIcon(badge.icon_name);
                         return (
                             <button 

@@ -12,12 +12,15 @@ export interface Profile {
   username: string;
   display_name: string;
   avatar_url?: string;
-  is_pro: boolean;
+  is_pro?: boolean; // Opcional pois pode não existir na tabela atual
   total_xp: number;
   aura_level: number;
   streak: number;
   credits: number;
   stats: UserStats;
+  roulette_tickets: number;
+  last_login_date?: string;
+  power_hour_combo: number;
 }
 
 export interface Task {
@@ -27,6 +30,7 @@ export interface Task {
   xp: number;
   is_completed: boolean;
   requires_evidence?: boolean;
+  grants_ticket?: boolean;
 }
 
 export interface Challenge {
@@ -134,42 +138,52 @@ export interface ChatMessage {
   text: string;
 }
 
+export interface RouletteHistoryEntry {
+  id: string;
+  user_id: string;
+  challenge_text: string;
+  challenge_type: string;
+  xp_reward: number;
+  tickets_won: number;
+  created_at: string;
+}
+
 // --- AURA LOGIC ---
 
 export type AuraState = 'Unstable' | 'Stable' | 'Elevated' | 'Dominant';
 
 export const getAuraConfig = (streak: number) => {
   if (streak < 3) {
-    return { 
-      state: 'Unstable' as AuraState, 
-      color: 'text-red-500', 
-      border: 'border-red-500', 
+    return {
+      state: 'Unstable' as AuraState,
+      color: 'text-red-500',
+      border: 'border-red-500',
       bg: 'bg-red-500/10',
-      shadow: 'shadow-red-500/20' 
+      shadow: 'shadow-red-500/20'
     };
   }
   if (streak < 14) {
-    return { 
-      state: 'Stable' as AuraState, 
-      color: 'text-blue-400', 
-      border: 'border-blue-400', 
+    return {
+      state: 'Stable' as AuraState,
+      color: 'text-blue-400',
+      border: 'border-blue-400',
       bg: 'bg-blue-400/10',
       shadow: 'shadow-blue-400/20'
     };
   }
   if (streak < 30) {
-    return { 
-      state: 'Elevated' as AuraState, 
-      color: 'text-neon-purple', 
-      border: 'border-neon-purple', 
+    return {
+      state: 'Elevated' as AuraState,
+      color: 'text-neon-purple',
+      border: 'border-neon-purple',
       bg: 'bg-neon-purple/10',
       shadow: 'shadow-neon-purple/20'
     };
   }
-  return { 
-    state: 'Dominant' as AuraState, 
-    color: 'text-yellow-400', 
-    border: 'border-yellow-400', 
+  return {
+    state: 'Dominant' as AuraState,
+    color: 'text-yellow-400',
+    border: 'border-yellow-400',
     bg: 'bg-yellow-400/10',
     shadow: 'shadow-yellow-400/50'
   };

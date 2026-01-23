@@ -1,19 +1,58 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, TrendingUp, Calendar } from 'lucide-react';
 import { useNavigate } from '../components/Layout';
 import { LedgerEntry } from '../types';
-
-const MOCK_LEDGER: LedgerEntry[] = [
-  { id: '1', source: 'Treino de Força', amount: 80, date: 'Hoje, 09:30', type: 'gain' },
-  { id: '2', source: 'Leitura (20 min)', amount: 40, date: 'Hoje, 08:15', type: 'gain' },
-  { id: '3', source: 'Streak Bonus (5 dias)', amount: 50, date: 'Ontem, 23:00', type: 'gain' },
-  { id: '4', source: 'Zero Açúcar', amount: 60, date: 'Ontem, 19:00', type: 'gain' },
-  { id: '5', source: 'Challenge: Reset Dopamina (Entry)', amount: 100, date: '12 Out, 14:20', type: 'gain' },
-  { id: '6', source: 'Dia Perfeito Bonus', amount: 150, date: '11 Out, 22:00', type: 'gain' },
-];
+import { supabase } from '../services/supabaseClient';
+import { getXpHistory } from '../services/database';
 
 const XPHistory = () => {
   const navigate = useNavigate();
+  const [ledger, setLedger] = useState<LedgerEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
+        const history = await getXpHistory(user.id);
+        setLedger(history);
+      }
+      setLoading(false);
+    };
+
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        const history = await getXpHistory(session.user.id);
+        setLedger(history);
+      } else {
+        setLedger([]);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-white">Carregando histórico...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-white">Por favor, faça login para ver seu histórico.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-slide-up pb-10">
@@ -34,20 +73,42 @@ const XPHistory = () => {
         </div>
         
         <div className="divide-y divide-gray-800">
-            {MOCK_LEDGER.map((entry) => (
+            {ledger.map((entry) => {
+                const formatDate = (dateStr: string) => {
+                    const date = new Date(dateStr);
+                    const today = new Date();
+                    const yesterday = new Date(today);
+                    yesterday.setDate(yesterday.getDate() - 1);
+
+                    if (date.toDateString() === today.toDateString()) {
+                        return `Hoje, ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                    } else if (date.toDateString() === yesterday.toDateString()) {
+                        return `Ontem, ${date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                    } else {
+                        return date.toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    }
+                };
+
+                return (
                 <div key={entry.id} className="p-4 flex items-center justify-between hover:bg-gray-800/30 transition-colors">
                     <div>
                         <div className="font-bold text-white text-sm">{entry.source}</div>
                         <div className="flex items-center text-xs text-gray-500 mt-1">
                             <Calendar size={10} className="mr-1" />
-                            {entry.date}
+                            {formatDate(entry.date)}
                         </div>
                     </div>
                     <div className={`font-display font-bold text-lg ${entry.type === 'gain' ? 'text-neon-green' : 'text-red-500'}`}>
                         {entry.type === 'gain' ? '+' : ''}{entry.amount} XP
                     </div>
                 </div>
-            ))}
+            );
+            })}
         </div>
         
         <div className="p-4 text-center border-t border-gray-800">

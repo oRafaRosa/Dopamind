@@ -1,13 +1,15 @@
 import React from 'react';
 import { useNavigate } from '../components/Layout';
-import { Brain, Swords, ShoppingBag, Book, Sparkles, Zap, Eye, Terminal } from 'lucide-react';
+import { Brain, Swords, ShoppingBag, Book, Sparkles, Zap, Eye, Terminal, Timer } from 'lucide-react';
 
 const TOOLS = [
     { id: 'focus', title: 'Deep Work Terminal', desc: 'Protocolo de foco gamificado.', icon: Terminal, color: 'text-neon-purple', path: '/app/focus' },
+    { id: 'power-hour', title: 'Power Hour', desc: 'Foco intensivo com multiplicadores.', icon: Timer, color: 'text-blue-500', path: '/app/power-hour' },
     { id: 'skills', title: 'Neural Skill Tree', desc: 'Evolua suas perks e habilidades.', icon: Brain, color: 'text-neon-blue', path: '/app/skills' },
     { id: 'pvp', title: 'Protocolo Duelo', desc: 'Aposte seus créditos com rivais.', icon: Swords, color: 'text-red-500', path: '/app/pvp' },
     { id: 'oracle', title: 'The Oracle', desc: 'Mentoria IA Estoica/Goggins.', icon: Eye, color: 'text-neon-green', path: '/app/oracle' },
     { id: 'logs', title: 'System Logs', desc: 'Diário com feedback neural.', icon: Book, color: 'text-yellow-500', path: '/app/logs' },
+    { id: 'roulette', title: 'Dopamine Roulette', desc: 'Gerador de desafios e XP.', icon: Sparkles, color: 'text-pink-500', path: '/app/roulette' },
     { id: 'shop', title: 'Black Market', desc: 'Loja de itens e upgrades.', icon: ShoppingBag, color: 'text-white', path: '/app/shop' },
 ];
 
@@ -27,7 +29,7 @@ const Nexus = () => {
 
             <div className="grid grid-cols-2 gap-4">
                 {TOOLS.map((tool) => (
-                    <div 
+                    <div
                         key={tool.id}
                         onClick={() => navigate(tool.path)}
                         className="bg-card border border-gray-800 rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:border-gray-600 hover:bg-gray-800/50 transition-all group aspect-square"

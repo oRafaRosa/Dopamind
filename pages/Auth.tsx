@@ -1,21 +1,53 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Zap, ArrowRight } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
 
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulating Auth for Demo
-    setTimeout(() => {
+    setError('');
+
+    try {
+      if (isLogin) {
+        // Login
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          setError(error.message);
+        } else {
+          navigate('/app/home');
+        }
+      } else {
+        // Sign up
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (error) {
+          setError(error.message);
+        } else {
+          // For sign up, we might want to show a message to check email
+          setError('Verifique seu email para confirmar a conta!');
+        }
+      }
+    } catch (err) {
+      setError('Erro inesperado. Tente novamente.');
+    } finally {
       setLoading(false);
-      navigate('/app/home');
-    }, 1000);
+    }
   };
 
   return (
@@ -38,11 +70,19 @@ const Auth = () => {
         </div>
 
         <div className="bg-card border border-gray-800 rounded-2xl p-6 md:p-8 shadow-xl">
+          {error && (
+            <div className="mb-4 p-3 bg-red-900/20 border border-red-500/50 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
               <label className="block text-xs uppercase tracking-wider font-bold text-gray-500 mb-2">Email</label>
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="player@dopamind.app"
                 className="w-full bg-background border border-gray-800 rounded-lg p-4 text-white placeholder-gray-600 focus:outline-none focus:border-neon-purple focus:ring-1 focus:ring-neon-purple transition-all"
                 required 
@@ -52,7 +92,9 @@ const Auth = () => {
             <div>
               <label className="block text-xs uppercase tracking-wider font-bold text-gray-500 mb-2">Senha</label>
               <input 
-                type="password" 
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full bg-background border border-gray-800 rounded-lg p-4 text-white placeholder-gray-600 focus:outline-none focus:border-neon-purple focus:ring-1 focus:ring-neon-purple transition-all"
                 required 
@@ -62,7 +104,7 @@ const Auth = () => {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-neon-purple hover:bg-purple-600 text-white font-bold py-4 rounded-lg transition-all transform active:scale-95 flex items-center justify-center space-x-2 mt-4"
+              className="w-full bg-neon-purple hover:bg-purple-600 text-white font-bold py-4 rounded-lg transition-all transform active:scale-95 flex items-center justify-center space-x-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span>Carregando...</span>
