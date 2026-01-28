@@ -5,9 +5,11 @@ import ProModal from '../components/ProModal';
 import StatsRadar from '../components/StatsRadar';
 import CalendarWidget from '../components/CalendarWidget';
 import BadgeDetailModal from '../components/BadgeDetailModal';
-import { Badge, Profile as ProfileType, getAuraConfig } from '../types';
+import { ArchetypeId, Badge, Profile as ProfileType, getAuraConfig } from '../types';
 import { supabase } from '../services/supabaseClient';
 import { getProfile, getBadges } from '../services/database';
+import ArchetypeSelector from '../components/ArchetypeSelector';
+import { getArchetypeById, getUserArchetypeId, setUserArchetypeId } from '../services/archetypes';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -17,6 +19,7 @@ const Profile = () => {
     const [badges, setBadges] = useState<Badge[]>([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
+    const [archetypeId, setArchetypeId] = useState<ArchetypeId>('hybrid');
 
     useEffect(() => {
         const getUser = async () => {
@@ -43,6 +46,12 @@ const Profile = () => {
 
         return () => subscription.unsubscribe();
     }, []);
+
+    useEffect(() => {
+        if (user?.id) {
+            setArchetypeId(getUserArchetypeId(user.id));
+        }
+    }, [user?.id]);
 
     const loadProfileAndBadges = async (userId: string) => {
         const profileData = await getProfile(userId);
@@ -72,6 +81,7 @@ const Profile = () => {
 
     // Aura State
     const auraConfig = getAuraConfig(profile.streak);
+    const currentArchetype = getArchetypeById(archetypeId);
 
     const getBadgeIcon = (name: string) => {
         switch(name) {
@@ -125,9 +135,9 @@ const Profile = () => {
 
             {/* RPG Stats Radar */}
             <div>
-                 <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1 flex items-center justify-between">
+                      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1 flex items-center justify-between">
                     <span>Atributos</span>
-                    <span className="text-[9px] bg-gray-800 px-2 py-0.5 rounded text-gray-400">CLASS: HYBRID</span>
+                          <span className="text-[9px] bg-gray-800 px-2 py-0.5 rounded text-gray-400">CLASS: {currentArchetype.name.toUpperCase()}</span>
                  </h3>
                  <div className="bg-card border border-gray-800 rounded-2xl p-2 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5">
@@ -163,6 +173,34 @@ const Profile = () => {
 
             {/* Calendar Consistency View */}
             <CalendarWidget />
+
+            {/* Archetype & Perks */}
+            <div>
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Classe & Perks</h3>
+                <div className="bg-card border border-gray-800 rounded-2xl p-4">
+                    <div className="mb-4">
+                        <div className="text-sm font-bold text-white">{currentArchetype.name}</div>
+                        <p className="text-xs text-gray-400 mt-1">{currentArchetype.description}</p>
+                    </div>
+
+                    <div className="space-y-2 mb-5">
+                        {currentArchetype.perks.map((perk) => (
+                            <div key={perk.id} className="text-[11px] text-gray-400">
+                                • <span className="text-white font-semibold">{perk.title}</span> — {perk.description}
+                            </div>
+                        ))}
+                    </div>
+
+                    <ArchetypeSelector
+                        selectedId={archetypeId}
+                        onSelect={(archetype) => {
+                            if (!user?.id) return;
+                            setUserArchetypeId(user.id, archetype.id);
+                            setArchetypeId(archetype.id);
+                        }}
+                    />
+                </div>
+            </div>
 
             {/* Badges Section */}
             <div>

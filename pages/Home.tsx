@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Profile, Task, getAuraConfig } from '../types';
 import { supabase } from '../services/supabaseClient';
 import { getProfile, getTasks, updateProfile, updateTask, createTask, addXpEntry, updateDayLog, addRouletteTickets, checkDailyLoginBonus } from '../services/database';
+import { applyArchetypeBonuses, getUserArchetypeId } from '../services/archetypes';
+import { addWeeklyXpLocal } from '../services/league';
 import XPModal from '../components/XPModal';
 import EvidenceModal from '../components/EvidenceModal';
 import PerfectDayModal from '../components/PerfectDayModal';
@@ -125,6 +127,12 @@ const Home = () => {
     let creditsGained = Math.floor(xpGained / 10); // 10% of XP as credits
     let isPerfectDay = false;
 
+    // Apply archetype passive bonuses (local profile-based)
+    const archetypeId = getUserArchetypeId(user.id);
+    const bonusResult = applyArchetypeBonuses(archetypeId, task.category, xpGained, creditsGained);
+    xpGained = bonusResult.xp;
+    creditsGained = bonusResult.credits;
+
     // Simulate Stat Gain - Safe Access
     const currentStats = profile.stats || { str: 0, int: 0, foc: 0, spi: 0, cha: 0 };
     const newStats = { ...currentStats };
@@ -148,6 +156,9 @@ const Home = () => {
       setShowPerfectDay(true);
     } else {
       // Standard Reward
+      const bonusNote = bonusResult.xpBonus > 0
+        ? `Bônus de classe: +${bonusResult.xpBonus} XP`
+        : '';
       const quotes = [
         "Sem evidência, sem XP.",
         "O mundo hackeou sua dopamina. Hackeie de volta.",
@@ -157,7 +168,7 @@ const Home = () => {
         "Farmando na vida real."
       ];
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      setRewardData({ xp: xpGained, message: randomQuote });
+      setRewardData({ xp: xpGained, message: bonusNote ? `${randomQuote} • ${bonusNote}` : randomQuote });
       setShowReward(true);
     }
 
@@ -184,6 +195,9 @@ const Home = () => {
       stats: newStats
     });
     await addXpEntry(user.id, `Task: ${task.title}`, xpGained);
+
+    // Weekly league local tracking (fallback when no DB aggregation exists)
+    addWeeklyXpLocal(user.id, xpGained);
 
     // Award ticket if task grants it
     if (task.grants_ticket) {

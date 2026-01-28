@@ -23,10 +23,12 @@ export interface Profile {
   power_hour_combo: number;
 }
 
+export type TaskCategory = 'Body' | 'Mind' | 'Spirit' | 'Work' | 'Life';
+
 export interface Task {
   id: string;
   title: string;
-  category: 'Body' | 'Mind' | 'Spirit' | 'Work' | 'Life';
+  category: TaskCategory;
   xp: number;
   is_completed: boolean;
   requires_evidence?: boolean;
@@ -98,6 +100,51 @@ export interface DayLog {
   date: string;
   status: 'perfect' | 'active' | 'inactive';
   xp_earned: number;
+}
+
+// --- ARCHETYPES & PERKS ---
+
+export type ArchetypeId = 'warrior' | 'sage' | 'monk' | 'architect' | 'bard' | 'hybrid';
+
+export interface ArchetypePerkEffect {
+  xpMultiplier?: number;
+  creditsMultiplier?: number;
+  category?: TaskCategory;
+}
+
+export interface ArchetypePerk {
+  id: string;
+  title: string;
+  description: string;
+  effect: ArchetypePerkEffect;
+}
+
+export interface Archetype {
+  id: ArchetypeId;
+  name: string;
+  description: string;
+  focus: TaskCategory | 'Balanced';
+  colorClass: string;
+  perks: ArchetypePerk[];
+}
+
+// --- WEEKLY LEAGUES ---
+
+export interface LeagueTier {
+  id: string;
+  name: string;
+  minXp: number;
+  maxXp?: number;
+  colorClass: string;
+}
+
+export interface WeeklyLeagueStatus {
+  tier: LeagueTier;
+  weeklyXp: number;
+  weekStart: string;
+  weekEnd: string;
+  progressToNext: number;
+  nextTier?: LeagueTier;
 }
 
 // --- NEW TYPES ---

@@ -1,6 +1,8 @@
 import React from 'react';
 import { RankingUser, getAuraConfig } from '../types';
 import { Trophy, Shield, Medal, Crown, Activity } from 'lucide-react';
+import WeeklyLeagueCard from '../components/WeeklyLeagueCard';
+import { LEAGUE_TIERS } from '../services/league';
 
 const RANKING_DATA: RankingUser[] = [
   { 
@@ -72,6 +74,22 @@ const Ranking = () => {
       <div className="flex justify-center space-x-2 mb-6">
         <button className="px-4 py-2 bg-neon-purple text-white text-sm font-bold rounded-lg shadow-lg shadow-neon-purple/20 transition-transform active:scale-95">Global</button>
         <button className="px-4 py-2 bg-card border border-gray-800 text-gray-400 text-sm font-bold rounded-lg hover:text-white transition-transform active:scale-95">Friends</button>
+      </div>
+
+      <WeeklyLeagueCard />
+
+      <div className="bg-card border border-gray-800 rounded-2xl p-5">
+        <div className="text-xs text-gray-500 uppercase tracking-widest mb-3">Escalões da Liga</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {LEAGUE_TIERS.map((tier) => (
+            <div key={tier.id} className="bg-gray-900/40 border border-gray-800 rounded-xl p-3">
+              <div className={`text-sm font-bold ${tier.colorClass}`}>{tier.name}</div>
+              <div className="text-[10px] text-gray-500 mt-1">
+                {tier.maxXp ? `${tier.minXp} - ${tier.maxXp} XP` : `${tier.minXp}+ XP`}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
       
       <div className="space-y-3">
