@@ -6,6 +6,7 @@ import { applyArchetypeBonuses, getUserArchetypeId } from '../services/archetype
 import { addWeeklyXpLocal } from '../services/league';
 import { getActiveXpMultiplier } from '../services/inventory';
 import { loadGoals, trackTaskCompletion, trackXpGain, trackStreakUpdate } from '../services/goals';
+import { getActiveBossRaid, dealBossDamage, calculateBossDamage } from '../services/boss';
 import XPModal from '../components/XPModal';
 import EvidenceModal from '../components/EvidenceModal';
 import PerfectDayModal from '../components/PerfectDayModal';
@@ -246,6 +247,16 @@ const Home = () => {
       }
       // Reload goals to get updated state
       setGoals(loadGoals());
+    }
+
+    // Deal damage to boss raid
+    const activeBoss = await getActiveBossRaid();
+    if (activeBoss) {
+      const damage = calculateBossDamage(xpGained);
+      const result = await dealBossDamage(activeBoss.id, user.id, damage, 1, 0);
+      if (result?.defeated) {
+        console.log('🎉 BOSS DERROTADO! A comunidade venceu!');
+      }
     }
 
     // Award ticket if task grants it

@@ -112,35 +112,6 @@ export interface FocusSession {
   type: 'focus' | 'break';
 }
 
-// --- LAYERED GOALS SYSTEM ---
-
-export type GoalPeriod = 'daily' | 'weekly' | 'seasonal';
-export type GoalType = 'complete_tasks' | 'earn_xp' | 'focus_time' | 'maintain_streak' | 'complete_category';
-
-export interface GoalRequirement {
-  type: GoalType;
-  target: number;
-  category?: TaskCategory; // For category-specific goals
-}
-
-export interface GoalReward {
-  xp: number;
-  credits: number;
-  tickets?: number;
-}
-
-export interface Goal {
-  id: string;
-  title: string;
-  description: string;
-  period: GoalPeriod;
-  requirement: GoalRequirement;
-  reward: GoalReward;
-  progress: number;
-  completed: boolean;
-  expiresAt: string;
-}
-
 export interface Friend {
   id: string;
   username: string;

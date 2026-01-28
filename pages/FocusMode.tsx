@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from '../components/Layout';
 import { ArrowLeft, Play, Pause, RefreshCw, Zap, Clock, TrendingUp } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
-import { getProfile, updateProfile, addXpEntry } from '../services/database';
+import { getProfile, updateProfile, addXpEntry, addRouletteTickets } from '../services/database';
 import { saveFocusSession, calculateFocusXp, getTodayFocusSessions } from '../services/focus';
 import { getActiveXpMultiplier } from '../services/inventory';
 import { addWeeklyXpLocal } from '../services/league';
+import { trackFocusTime, trackXpGain } from '../services/goals';
+import { getActiveBossRaid, dealBossDamage, calculateBossDamage } from '../services/boss';
 
 const FocusMode = () => {
     const navigate = useNavigate();
@@ -71,6 +73,45 @@ const FocusMode = () => {
             });
             await addXpEntry(user.id, `Sessão de Foco (${Math.floor(duration / 60)} min)`, xpEarned);
             addWeeklyXpLocal(user.id, xpEarned);
+        }
+        
+        // Track goals progress
+        const focusMinutes = Math.floor(duration / 60);
+        const completedGoalsFromFocus = trackFocusTime(focusMinutes);
+        const completedGoalsFromXp = trackXpGain(xpEarned);
+        const allCompletedGoals = [...completedGoalsFromFocus, ...completedGoalsFromXp];
+        
+        // Award rewards for completed goals
+        if (allCompletedGoals.length > 0) {
+            for (const completedGoal of allCompletedGoals) {
+                const goalRewardXp = completedGoal.reward.xp;
+                const goalRewardCredits = completedGoal.reward.credits;
+                const goalRewardTickets = completedGoal.reward.tickets || 0;
+                
+                // Update profile with goal rewards
+                const currentProfile = await getProfile(user.id);
+                if (currentProfile) {
+                    await updateProfile(user.id, {
+                        total_xp: currentProfile.total_xp + goalRewardXp,
+                        credits: currentProfile.credits + goalRewardCredits
+                    });
+                    if (goalRewardTickets > 0) {
+                        await addRouletteTickets(user.id, goalRewardTickets);
+                    }
+                    await addXpEntry(user.id, `Goal: ${completedGoal.title}`, goalRewardXp);
+                    console.log(`🏆 Goal completed: ${completedGoal.title} (+${goalRewardXp} XP, +${goalRewardCredits}¢)`);
+                }
+            }
+        }
+        
+        // Deal damage to boss raid
+        const activeBoss = await getActiveBossRaid();
+        if (activeBoss) {
+            const damage = calculateBossDamage(xpEarned);
+            const result = await dealBossDamage(activeBoss.id, user.id, damage, 0, focusMinutes);
+            if (result?.defeated) {
+                console.log('🎉 BOSS DERROTADO! A comunidade venceu!');
+            }
         }
         
         setTodaySessions(getTodayFocusSessions(user.id));
