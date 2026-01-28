@@ -285,7 +285,7 @@ const Profile = () => {
             </div>
 
             <div className="text-center pb-8 pt-4">
-                <p className="text-[10px] text-gray-700 font-mono">DOPAMIND v0.3.2 • Built with Aura</p>
+                <p className="text-[10px] text-gray-700 font-mono">DOPAMIND v0.3.2 • NEW FEATURES LIVE 🔥</p>
             </div>
 
             <ProModal isOpen={isProModalOpen} onClose={() => setIsProModalOpen(false)} />
