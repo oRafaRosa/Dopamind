@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>DOPAMIND</title>
+    
+    <!-- Favicon SVG Base64 (Ícone de Raio Roxo Neon) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a855f7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2' fill='%23a855f7' fill-opacity='0.2'/%3E%3C/svg%3E" />
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+      body {
+        background-color: #07070d;
+        color: #e2e8f0;
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+      }
+      /* Loading State CSS Critical Path */
+      #root:empty::before {
+        content: 'BOOTING SYSTEM...';
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+        align-items: center;
+        justify-content: center;
+        color: #a855f7;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.3em;
+        animation: pulse 1.5s infinite;
+        background: radial-gradient(circle at center, #12121a 0%, #07070d 100%);
+        font-size: 1.2rem;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+      }
+    </style>
+
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.90.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/Dopamind/assets/index-DXlL1Pq7.js"></script>
+  <link rel="stylesheet" crossorigin href="/Dopamind/assets/index-DBYgrVZN.css">
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

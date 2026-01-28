@@ -1,0 +1,8 @@
+/*
+  Cache-Control: public, max-age=300, s-maxage=300
+  
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
