@@ -180,8 +180,12 @@ const Roulette = () => {
 
                 {/* Wheel Container */}
                 <div
-                    className="relative w-72 h-72 md:w-96 md:h-96 rounded-full border-4 border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.4)] transition-transform duration-[4000ms] cubic-bezier(0.15, 0, 0.15, 1)"
-                    style={{ transform: `rotate(${rotation}deg)` }}
+                    className="relative w-72 h-72 md:w-96 md:h-96 rounded-full border-4 border-white/10 shadow-[0_0_50px_rgba(168,85,247,0.4)] transition-transform"
+                    style={{
+                        transform: `rotate(${rotation}deg)`,
+                        transitionDuration: '4000ms',
+                        transitionTimingFunction: 'cubic-bezier(0.15, 0, 0.15, 1)',
+                    }}
                 >
                     {/* Wheel Segments */}
                     <div className="absolute inset-0 rounded-full overflow-hidden">
