@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Profile, Task, getAuraConfig } from '../types';
+import { Profile, Task, Goal, getAuraConfig } from '../types';
 import { supabase } from '../services/supabaseClient';
 import { getProfile, getTasks, updateProfile, updateTask, createTask, addXpEntry, updateDayLog, addRouletteTickets, checkDailyLoginBonus } from '../services/database';
 import { applyArchetypeBonuses, getUserArchetypeId } from '../services/archetypes';
 import { addWeeklyXpLocal } from '../services/league';
+import { getActiveXpMultiplier } from '../services/inventory';
+import { loadGoals, trackTaskCompletion, trackXpGain, trackStreakUpdate } from '../services/goals';
 import XPModal from '../components/XPModal';
 import EvidenceModal from '../components/EvidenceModal';
 import PerfectDayModal from '../components/PerfectDayModal';
 import BossRaidWidget from '../components/BossRaidWidget';
+import GoalsWidget from '../components/GoalsWidget';
 import { Flame, CheckCircle2, Circle, Dumbbell, BookOpen, Brain, Briefcase, Plus, Camera, Coins, Activity } from 'lucide-react';
 
 const Home = () => {
@@ -16,6 +19,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const [defaultTasksCreated, setDefaultTasksCreated] = useState(false);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   // Load user and data on mount
   useEffect(() => {
@@ -63,11 +67,18 @@ const Home = () => {
         const updatedProfile = await getProfile(userId);
         if (updatedProfile) setProfile(updatedProfile);
       }
+
+      // Update streak tracking for goals
+      trackStreakUpdate(profileData.streak);
     } else {
       console.log('No profile found, will create default tasks');
     }
 
     setTasks(tasksData);
+    
+    // Load goals
+    const goalsData = loadGoals();
+    setGoals(goalsData);
   };
 
   // Modals state
@@ -132,6 +143,14 @@ const Home = () => {
     const bonusResult = applyArchetypeBonuses(archetypeId, task.category, xpGained, creditsGained);
     xpGained = bonusResult.xp;
     creditsGained = bonusResult.credits;
+
+    // Apply active item boosts (XP Booster 24h)
+    const xpMultiplier = getActiveXpMultiplier(user.id);
+    if (xpMultiplier > 1) {
+      const boostXp = Math.round(xpGained * xpMultiplier) - xpGained;
+      xpGained = Math.round(xpGained * xpMultiplier);
+      bonusResult.xpBonus += boostXp;
+    }
 
     // Simulate Stat Gain - Safe Access
     const currentStats = profile.stats || { str: 0, int: 0, foc: 0, spi: 0, cha: 0 };
@@ -198,6 +217,36 @@ const Home = () => {
 
     // Weekly league local tracking (fallback when no DB aggregation exists)
     addWeeklyXpLocal(user.id, xpGained);
+
+    // Track goals progress
+    const completedGoalsFromTasks = trackTaskCompletion(task.category);
+    const completedGoalsFromXp = trackXpGain(xpGained);
+    const allCompletedGoals = [...completedGoalsFromTasks, ...completedGoalsFromXp];
+    
+    // Award rewards for completed goals
+    if (allCompletedGoals.length > 0) {
+      for (const completedGoal of allCompletedGoals) {
+        const goalRewardXp = completedGoal.reward.xp;
+        const goalRewardCredits = completedGoal.reward.credits;
+        const goalRewardTickets = completedGoal.reward.tickets || 0;
+        
+        // Update profile with goal rewards
+        const currentProfile = await getProfile(user.id);
+        if (currentProfile) {
+          await updateProfile(user.id, {
+            total_xp: currentProfile.total_xp + goalRewardXp,
+            credits: currentProfile.credits + goalRewardCredits
+          });
+          if (goalRewardTickets > 0) {
+            await addRouletteTickets(user.id, goalRewardTickets);
+          }
+          await addXpEntry(user.id, `Goal: ${completedGoal.title}`, goalRewardXp);
+          console.log(`🏆 Goal completed: ${completedGoal.title} (+${goalRewardXp} XP, +${goalRewardCredits}¢)`);
+        }
+      }
+      // Reload goals to get updated state
+      setGoals(loadGoals());
+    }
 
     // Award ticket if task grants it
     if (task.grants_ticket) {
@@ -323,6 +372,11 @@ const Home = () => {
 
       {/* Boss Raid Widget */}
       <BossRaidWidget />
+
+      {/* Goals Widgets */}
+      <GoalsWidget goals={goals} period="daily" />
+      <GoalsWidget goals={goals} period="weekly" />
+      <GoalsWidget goals={goals} period="seasonal" />
 
       {/* Daily Progress Widget */}
       <div className={`bg-card border border-gray-800 rounded-2xl p-6 relative overflow-hidden transition-all duration-500 ${completionRate === 100 ? 'border-neon-green/50 shadow-lg shadow-neon-green/10' : ''}`}>

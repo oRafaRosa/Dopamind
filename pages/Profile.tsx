@@ -10,6 +10,7 @@ import { supabase } from '../services/supabaseClient';
 import { getProfile, getBadges } from '../services/database';
 import ArchetypeSelector from '../components/ArchetypeSelector';
 import { getArchetypeById, getUserArchetypeId, setUserArchetypeId } from '../services/archetypes';
+import { getTotalFocusTime, getFocusStreak, getTodayFocusSessions } from '../services/focus';
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<any>(null);
     const [archetypeId, setArchetypeId] = useState<ArchetypeId>('hybrid');
+    const [focusStats, setFocusStats] = useState({ todaySessions: 0, totalTime: 0, streak: 0 });
 
     useEffect(() => {
         const getUser = async () => {
@@ -50,6 +52,17 @@ const Profile = () => {
     useEffect(() => {
         if (user?.id) {
             setArchetypeId(getUserArchetypeId(user.id));
+            
+            // Load focus stats
+            const todaySessions = getTodayFocusSessions(user.id);
+            const totalTime = getTotalFocusTime(user.id, 7); // Last 7 days
+            const streak = getFocusStreak(user.id);
+            
+            setFocusStats({
+                todaySessions: todaySessions.length,
+                totalTime: Math.floor(totalTime / 60), // Convert to minutes
+                streak
+            });
         }
     }, [user?.id]);
 
@@ -173,6 +186,27 @@ const Profile = () => {
 
             {/* Calendar Consistency View */}
             <CalendarWidget />
+
+            {/* Focus Stats */}
+            <div>
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 ml-1">Stats de Foco</h3>
+                <div className="bg-card border border-gray-800 rounded-2xl p-4">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div className="text-2xl font-display font-bold text-neon-purple">{focusStats.todaySessions}</div>
+                            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Hoje</div>
+                        </div>
+                        <div>
+                            <div className="text-2xl font-display font-bold text-neon-blue">{focusStats.totalTime}m</div>
+                            <div className="text-[10px] text-gray-500 uppercase tracking-wider">7 Dias</div>
+                        </div>
+                        <div>
+                            <div className="text-2xl font-display font-bold text-orange-500">{focusStats.streak}</div>
+                            <div className="text-[10px] text-gray-500 uppercase tracking-wider">Streak</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Archetype & Perks */}
             <div>

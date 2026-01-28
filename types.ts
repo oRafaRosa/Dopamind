@@ -85,6 +85,60 @@ export interface ShopItem {
   type: 'cosmetic' | 'utility' | 'boost';
   icon_name: string;
   owned: boolean;
+  effect?: ShopItemEffect;
+}
+
+export interface ShopItemEffect {
+  type: 'streak_freeze' | 'xp_boost' | 'cosmetic';
+  duration?: number; // in hours
+  multiplier?: number; // e.g., 1.2 for 20% boost
+}
+
+export interface ActiveItem {
+  itemId: string;
+  itemName: string;
+  effect: ShopItemEffect;
+  activatedAt: string;
+  expiresAt: string;
+}
+
+export interface FocusSession {
+  id: string;
+  userId: string;
+  duration: number; // in seconds
+  xpEarned: number;
+  startedAt: string;
+  completedAt: string;
+  type: 'focus' | 'break';
+}
+
+// --- LAYERED GOALS SYSTEM ---
+
+export type GoalPeriod = 'daily' | 'weekly' | 'seasonal';
+export type GoalType = 'complete_tasks' | 'earn_xp' | 'focus_time' | 'maintain_streak' | 'complete_category';
+
+export interface GoalRequirement {
+  type: GoalType;
+  target: number;
+  category?: TaskCategory; // For category-specific goals
+}
+
+export interface GoalReward {
+  xp: number;
+  credits: number;
+  tickets?: number;
+}
+
+export interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  period: GoalPeriod;
+  requirement: GoalRequirement;
+  reward: GoalReward;
+  progress: number;
+  completed: boolean;
+  expiresAt: string;
 }
 
 export interface Friend {

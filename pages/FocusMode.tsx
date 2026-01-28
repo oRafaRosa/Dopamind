@@ -1,12 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '../components/Layout';
-import { ArrowLeft, Play, Pause, RefreshCw, Zap } from 'lucide-react';
+import { ArrowLeft, Play, Pause, RefreshCw, Zap, Clock, TrendingUp } from 'lucide-react';
+import { supabase } from '../services/supabaseClient';
+import { getProfile, updateProfile, addXpEntry } from '../services/database';
+import { saveFocusSession, calculateFocusXp, getTodayFocusSessions } from '../services/focus';
+import { getActiveXpMultiplier } from '../services/inventory';
+import { addWeeklyXpLocal } from '../services/league';
+import { trackFocusTime, trackXpGain, loadGoals } from '../services/goals';
+import { addRouletteTickets } from '../services/database';
 
 const FocusMode = () => {
     const navigate = useNavigate();
+    const [user, setUser] = useState<any>(null);
     const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 mins
     const [isActive, setIsActive] = useState(false);
     const [mode, setMode] = useState<'focus' | 'break'>('focus');
+    const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
+    const [todaySessions, setTodaySessions] = useState<any[]>([]);
+    const [showComplete, setShowComplete] = useState(false);
+
+    useEffect(() => {
+        const loadUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            if (user) {
+                const sessions = getTodayFocusSessions(user.id);
+                setTodaySessions(sessions);
+            }
+        };
+        loadUser();
+    }, []);
 
     useEffect(() => {
         let interval: any = null;
@@ -14,15 +37,85 @@ const FocusMode = () => {
             interval = setInterval(() => {
                 setTimeLeft(timeLeft - 1);
             }, 1000);
-        } else if (timeLeft === 0) {
+        } else if (timeLeft === 0 && isActive) {
             clearInterval(interval);
             setIsActive(false);
-            // In real app: Trigger sound & XP gain
+            handleSessionComplete();
+        }
         }
         return () => clearInterval(interval);
     }, [isActive, timeLeft]);
 
-    const toggleTimer = () => setIsActive(!isActive);
+    const handleSessionComplete = async () => {
+        if (!user || !sessionStartTime) return;
+        
+        const duration = (mode === 'focus' ? 25 : 5) * 60;
+        const baseXp = calculateFocusXp(duration);
+        
+        // Apply XP multiplier from items
+        const multiplier = getActiveXpMultiplier(user.id);
+        const xpEarned = Math.round(baseXp * multiplier);
+        
+        // Save session
+        const session = saveFocusSession(user.id, {
+            userId: user.id,
+            duration,
+            xpEarned,
+            startedAt: sessionStartTime.toISOString(),
+            completedAt: new Date().toISOString(),
+            type: mode
+        });
+        
+        // Update profile
+        const profile = await getProfile(user.id);
+        if (profile) {
+            await updateProfile(user.id, {
+                total_xp: profile.total_xp + xpEarned
+            });
+            await addXpEntry(user.id, `Sessão de Foco (${Math.floor(duration / 60)} min)`, xpEarned);
+            addWeeklyXpLocal(user.id, xpEarned);
+        }
+        
+        // Track goals progress
+        const focusMinutes = Math.floor(duration / 60);
+        const completedGoalsFromFocus = trackFocusTime(focusMinutes);
+        const completedGoalsFromXp = trackXpGain(xpEarned);
+        const allCompletedGoals = [...completedGoalsFromFocus, ...completedGoalsFromXp];
+        
+        // Award rewards for completed goals
+        if (allCompletedGoals.length > 0) {
+            for (const completedGoal of allCompletedGoals) {
+                const goalRewardXp = completedGoal.reward.xp;
+                const goalRewardCredits = completedGoal.reward.credits;
+                const goalRewardTickets = completedGoal.reward.tickets || 0;
+                
+                // Update profile with goal rewards
+                const currentProfile = await getProfile(user.id);
+                if (currentProfile) {
+                    await updateProfile(user.id, {
+                        total_xp: currentProfile.total_xp + goalRewardXp,
+                        credits: currentProfile.credits + goalRewardCredits
+                    });
+                    if (goalRewardTickets > 0) {
+                        await addRouletteTickets(user.id, goalRewardTickets);
+                    }
+                    await addXpEntry(user.id, `Goal: ${completedGoal.title}`, goalRewardXp);
+                    console.log(`🏆 Goal completed: ${completedGoal.title} (+${goalRewardXp} XP, +${goalRewardCredits}¢)`);
+                }
+            }
+        }
+        
+        setTodaySessions(getTodayFocusSessions(user.id));
+        setShowComplete(true);
+        setTimeout(() => setShowComplete(false), 3000);
+    };
+
+    const toggleTimer = () => {
+        if (!isActive) {
+            setSessionStartTime(new Date());
+        }
+        setIsActive(!isActive);
+    };
     
     const resetTimer = () => {
         setIsActive(false);
@@ -103,10 +196,38 @@ const FocusMode = () => {
                     </div>
                 </div>
 
-                <div className="mt-8 flex items-center justify-center text-gray-600 text-xs font-mono">
-                    <Zap size={12} className="mr-1" />
-                    <span>Reward: +50 XP per session</span>
+                <div className="mt-8 space-y-3">
+                    <div className="flex items-center justify-center text-gray-400 text-xs font-mono">
+                        <Zap size={12} className="mr-1" />
+                        <span>+{calculateFocusXp(mode === 'focus' ? 25 * 60 : 5 * 60)} XP por sessão</span>
+                    </div>
+                    
+                    {todaySessions.length > 0 && (
+                        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-3">
+                            <div className="flex items-center justify-between text-xs">
+                                <span className="text-gray-500">Hoje</span>
+                                <div className="flex items-center space-x-4">
+                                    <span className="text-white font-bold">{todaySessions.length} sessões</span>
+                                    <span className="text-neon-green font-bold">
+                                        +{todaySessions.reduce((sum, s) => sum + s.xpEarned, 0)} XP
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
+                
+                {showComplete && (
+                    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 animate-fade-in">
+                        <div className="bg-card border-2 border-neon-green rounded-2xl p-8 text-center">
+                            <div className="w-16 h-16 mx-auto mb-4 bg-neon-green/20 rounded-full flex items-center justify-center">
+                                <Zap size={32} className="text-neon-green" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-2">Sessão Completa!</h2>
+                            <p className="text-gray-400">XP ganho registrado</p>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

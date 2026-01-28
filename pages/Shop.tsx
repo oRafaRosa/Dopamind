@@ -1,28 +1,120 @@
-import React, { useState } from 'react';
-import { ShoppingBag, Coins, Lock, Zap, Frame, Snowflake, Crown } from 'lucide-react';
-import { ShopItem } from '../types';
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, Coins, Lock, Zap, Frame, Snowflake, Crown, CheckCircle, Clock } from 'lucide-react';
+import { ShopItem, ShopItemEffect } from '../types';
+import { supabase } from '../services/supabaseClient';
+import { getProfile, updateProfile } from '../services/database';
+import { getUserInventory, addToInventory, activateItem, getActiveItems } from '../services/inventory';
 
 const SHOP_ITEMS: ShopItem[] = [
-  { id: '1', name: 'Streak Freeze', description: 'Protege sua sequência por 1 dia se você falhar.', price: 500, type: 'utility', icon_name: 'Snowflake', owned: false },
-  { id: '2', name: 'Neon Frame', description: 'Borda neon exclusiva para seu avatar.', price: 1200, type: 'cosmetic', icon_name: 'Frame', owned: false },
-  { id: '3', name: 'XP Booster 24h', description: 'Ganhe 20% mais XP em todas as tarefas por 24h.', price: 800, type: 'boost', icon_name: 'Zap', owned: false },
-  { id: '4', name: 'Dark Soul Theme', description: 'Tema preto absoluto para telas OLED.', price: 2000, type: 'cosmetic', icon_name: 'Crown', owned: true },
+  { 
+    id: '1', 
+    name: 'Streak Freeze', 
+    description: 'Protege sua sequência por 1 dia se você falhar.', 
+    price: 500, 
+    type: 'utility', 
+    icon_name: 'Snowflake', 
+    owned: false,
+    effect: { type: 'streak_freeze', duration: 24 }
+  },
+  { 
+    id: '2', 
+    name: 'Neon Frame', 
+    description: 'Borda neon exclusiva para seu avatar.', 
+    price: 1200, 
+    type: 'cosmetic', 
+    icon_name: 'Frame', 
+    owned: false,
+    effect: { type: 'cosmetic' }
+  },
+  { 
+    id: '3', 
+    name: 'XP Booster 24h', 
+    description: 'Ganhe 20% mais XP em todas as tarefas por 24h.', 
+    price: 800, 
+    type: 'boost', 
+    icon_name: 'Zap', 
+    owned: false,
+    effect: { type: 'xp_boost', duration: 24, multiplier: 1.2 }
+  },
+  { 
+    id: '4', 
+    name: 'Dark Soul Theme', 
+    description: 'Tema preto absoluto para telas OLED.', 
+    price: 2000, 
+    type: 'cosmetic', 
+    icon_name: 'Crown', 
+    owned: false,
+    effect: { type: 'cosmetic' }
+  },
 ];
 
 const Shop = () => {
-  const [userCredits, setUserCredits] = useState(450); // Mock user credits
+  const [user, setUser] = useState<any>(null);
+  const [userCredits, setUserCredits] = useState(0);
   const [items, setItems] = useState(SHOP_ITEMS);
+  const [activeItems, setActiveItems] = useState<any[]>([]);
 
-  const handleBuy = (item: ShopItem) => {
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      
+      if (user) {
+        const profile = await getProfile(user.id);
+        if (profile) {
+          setUserCredits(profile.credits);
+        }
+        
+        const inventory = getUserInventory(user.id);
+        setItems(SHOP_ITEMS.map(item => ({
+          ...item,
+          owned: inventory.includes(item.id)
+        })));
+        
+        setActiveItems(getActiveItems(user.id));
+      }
+    };
+    
+    loadUserData();
+  }, []);
+
+  const handleBuy = async (item: ShopItem) => {
+    if (!user) return;
+    
     if (userCredits >= item.price && !item.owned) {
       if (confirm(`Comprar ${item.name} por ${item.price} $C?`)) {
-        setUserCredits(prev => prev - item.price);
+        const newCredits = userCredits - item.price;
+        setUserCredits(newCredits);
+        
+        // Update profile
+        await updateProfile(user.id, { credits: newCredits });
+        
+        // Add to inventory
+        addToInventory(user.id, item.id);
+        
         setItems(prev => prev.map(i => i.id === item.id ? { ...i, owned: true } : i));
         alert('Item adquirido! Verifique seu inventário.');
       }
     } else if (userCredits < item.price) {
       alert('Créditos insuficientes. Vá farmar!');
     }
+  };
+
+  const handleActivate = (item: ShopItem) => {
+    if (!user || !item.effect) return;
+    
+    const success = activateItem(user.id, item.id, item.name, item.effect);
+    
+    if (success) {
+      setActiveItems(getActiveItems(user.id));
+      alert(`${item.name} ativado! Efeito durará ${item.effect.duration || 24}h.`);
+    } else {
+      alert('Você já tem um efeito deste tipo ativo.');
+    }
+  };
+
+  const isActive = (itemId: string) => {
+    return activeItems.some(active => active.itemId === itemId);
   };
 
   const getIcon = (name: string) => {
@@ -74,20 +166,34 @@ const Shop = () => {
             <p className="text-gray-400 text-sm leading-relaxed mb-4 min-h-[40px]">{item.description}</p>
 
             <button
-              onClick={() => handleBuy(item)}
-              disabled={item.owned || userCredits < item.price}
+              onClick={() => item.owned ? (item.type !== 'cosmetic' ? handleActivate(item) : null) : handleBuy(item)}
+              disabled={(!item.owned && userCredits < item.price) || (item.owned && item.type === 'cosmetic') || isActive(item.id)}
               className={`w-full py-3 rounded-lg font-bold text-sm flex items-center justify-center space-x-2 transition-colors ${
-                item.owned 
-                  ? 'bg-gray-800 text-gray-500 cursor-default' 
-                  : userCredits >= item.price
-                    ? 'bg-white text-black hover:bg-gray-200'
-                    : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                isActive(item.id)
+                  ? 'bg-neon-green/20 text-neon-green cursor-default border border-neon-green/40'
+                  : item.owned && item.type === 'cosmetic'
+                    ? 'bg-gray-800 text-gray-500 cursor-default'
+                    : item.owned
+                      ? 'bg-neon-purple text-white hover:bg-purple-600'
+                      : userCredits >= item.price
+                        ? 'bg-white text-black hover:bg-gray-200'
+                        : 'bg-gray-800 text-gray-600 cursor-not-allowed'
               }`}
             >
-               {item.owned ? (
+               {isActive(item.id) ? (
+                 <>
+                   <Clock size={14} />
+                   <span>ATIVO</span>
+                 </>
+               ) : item.owned && item.type === 'cosmetic' ? (
                  <>
                    <CheckIcon />
                    <span>NO INVENTÁRIO</span>
+                 </>
+               ) : item.owned ? (
+                 <>
+                   <Zap size={14} />
+                   <span>ATIVAR</span>
                  </>
                ) : (
                  <>
